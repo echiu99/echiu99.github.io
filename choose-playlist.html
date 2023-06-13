@@ -51,10 +51,32 @@
   </div>
 
   <script>
+    // Global variables for Spotify API credentials
+    const clientId = '6ffed30ba9ac43d98ea19f4c52fc6f9b';
+    const redirectUri = 'http://localhost:443/callback';
+
+    // Function to handle Spotify authorization
+    function authorizeSpotify() {
+      // Construct the authorization URL
+      const authUrl = 'https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=playlist-read-private';
+
+      // Redirect the user to the Spotify authorization URL
+      window.location.href = authUrl;
+    }
+
     // Fetch and display the user's Spotify playlists
     window.onload = function() {
-      // Replace the placeholder value with your actual Spotify access token
-      const accessToken = 'YOUR_SPOTIFY_ACCESS_TOKEN';
+      // Check if the access token is already stored in a local storage
+      const storedAccessToken = localStorage.getItem('spotifyAccessToken');
+
+      if (storedAccessToken) {
+        // Access token exists, enable the "Select Playlist" button
+        const selectButton = document.getElementById('select-button');
+        selectButton.removeAttribute('disabled');
+      } else {
+        // Access token doesn't exist, authorize Spotify
+        authorizeSpotify();
+      }
 
       // Fetch the user's playlists from Spotify
       fetch('https://api.spotify.com/v1/me/playlists', {
