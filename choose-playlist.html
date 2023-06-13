@@ -51,6 +51,16 @@
   </div>
 
   <script>
+    // Function to extract the access token from the URL fragment
+    function getAccessTokenFromURL() {
+      const fragmentString = window.location.hash.substring(1);
+      const fragmentParams = new URLSearchParams(fragmentString);
+      return fragmentParams.get('access_token');
+    }
+
+    // Retrieve the access token and store it for subsequent API requests
+    const accessToken = getAccessTokenFromURL();
+    
     // Fetch and display the user's Spotify playlists
     window.onload = function() {
       // Replace the placeholder value with your actual Spotify access token
