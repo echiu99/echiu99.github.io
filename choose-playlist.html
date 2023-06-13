@@ -58,7 +58,7 @@
     // Function to handle Spotify authorization
     function authorizeSpotify() {
       // Construct the authorization URL
-      const authUrl = 'https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=playlist-read-private';
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=playlist-read-private`;
 
       // Redirect the user to the Spotify authorization URL
       window.location.href = authUrl;
