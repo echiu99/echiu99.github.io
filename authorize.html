@@ -77,48 +77,7 @@
         // Access token doesn't exist, authorize Spotify
         authorizeSpotify();
       }
-
-      // Fetch the user's playlists from Spotify
-      fetch('https://api.spotify.com/v1/me/playlists', {
-        headers: {
-          'Authorization': 'Bearer ' + accessToken
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        const playlistContainer = document.getElementById('playlist-container');
-        
-        if (data.items.length > 0) {
-          // Display each playlist as a selectable item
-          data.items.forEach(playlist => {
-            const playlistItem = document.createElement('div');
-            playlistItem.classList.add('playlist-item');
-            playlistItem.innerHTML = `
-              <input type="radio" name="playlist" value="${playlist.id}" id="${playlist.id}">
-              <label for="${playlist.id}">${playlist.name}</label>
-            `;
-            playlistContainer.appendChild(playlistItem);
-          });
-          // Enable the "Select Playlist" button once a playlist is selected
-          const selectButton = document.getElementById('select-button');
-          const playlistRadios = document.querySelectorAll('input[name="playlist"]');
-          playlistRadios.forEach(radio => {
-            radio.addEventListener('change', () => {
-              selectButton.removeAttribute('disabled');
-            });
-          });
-        } else {
-          // If no playlists found, display a message
-          playlistContainer.innerHTML = 'No playlists found.';
-        }
-      })
-      .catch(error => {
-        console.log('Error fetching playlists:', error);
-        // Display an error message
-        const playlistContainer = document.getElementById('playlist-container');
-        playlistContainer.innerHTML = 'Error fetching playlists. Please try again later.';
-      });
-    };
+    }
   </script>
 </body>
 </html>
