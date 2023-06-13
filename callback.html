@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Callback</title>
+  <script>
+    window.onload = function() {
+      // Get the authorization code or access token from the URL query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code'); // Authorization code
+      const token = urlParams.get('access_token'); // Access token
+
+      // Check if the authorization code or access token is present
+      if (code || token) {
+        // Store the authorization code or access token in local storage
+        localStorage.setItem('spotifyAuthorizationCode', code);
+        localStorage.setItem('spotifyAccessToken', token);
+
+        // Redirect the user to the "Choose Playlist" page
+        window.location.href = '/choose-playlist';
+      } else {
+        // Handle the case when the authorization code or access token is not present
+        console.log('Authorization failed.');
+      }
+    };
+  </script>
+</head>
+<body>
+  <h1>Callback Page</h1>
+</body>
+</html>
