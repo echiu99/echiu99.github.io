@@ -47,17 +47,21 @@
   <div class="container">
     <h1>Choose a Playlist</h1>
     <div id="playlist-container"></div>
-    <button class="button" id="select-button" disabled>Select Playlist</button>
+    <a href="https://echiu99.github.io/yeah/rate-songs.html" class="button" id="select-button" disabled>Select Playlist</a>
   </div>
 
   <script>
-    // Fetch and display the user's Spotify playlists
-    window.onload = function() {
-      // Check if the access token is already stored in local storage
+    function fetchPlaylists() {
+      // Check if the access token and selected playlist ID are stored
+      if (localStorage.getItem('spotifyAccessToken') && localStorage.getItem('selectedPlaylistId')) {
+        localStorage.removeItem('spotifyAccessToken');
+        localStorage.removeItem('selectedPlaylistId');
+      }
+
+      // Fetch and display the user's Spotify playlists
       const accessToken = localStorage.getItem('spotifyAccessToken');
 
       if (accessToken) {
-        // Fetch the user's playlists from Spotify
         fetch('https://api.spotify.com/v1/me/playlists', {
           headers: {
             'Authorization': 'Bearer ' + accessToken
@@ -68,7 +72,6 @@
           const playlistContainer = document.getElementById('playlist-container');
 
           if (data.items.length > 0) {
-            // Display each playlist as a selectable item
             data.items.forEach(playlist => {
               const playlistItem = document.createElement('div');
               playlistItem.classList.add('playlist-item');
@@ -79,7 +82,6 @@
               playlistContainer.appendChild(playlistItem);
             });
 
-            // Enable the "Select Playlist" button once a playlist is selected
             const selectButton = document.getElementById('select-button');
             const playlistRadios = document.querySelectorAll('input[name="playlist"]');
             playlistRadios.forEach(radio => {
@@ -88,29 +90,25 @@
               });
             });
 
-            // Handle the playlist selection and store the selected playlist ID
             selectButton.addEventListener('click', () => {
               const selectedPlaylistId = document.querySelector('input[name="playlist"]:checked').value;
               localStorage.setItem('selectedPlaylistId', selectedPlaylistId);
-              window.location.href = 'https://echiu99.github.io/rate-songs.html';
             });
           } else {
-            // If no playlists found, display a message
             playlistContainer.innerHTML = 'No playlists found.';
           }
         })
         .catch(error => {
           console.log('Error fetching playlists:', error);
-          // Display an error message
           const playlistContainer = document.getElementById('playlist-container');
           playlistContainer.innerHTML = 'Error fetching playlists. Please try again later.';
         });
       } else {
-        // Access token doesn't exist, handle the case when the user is not authorized
         console.log('User not authorized.');
-        // You can redirect the user back to the authorization page if needed
       }
-    };
+    }
+
+    fetchPlaylists();
   </script>
 </body>
 </html>
