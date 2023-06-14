@@ -3,46 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Website</title>
-  <style>
-    /* Add your CSS styles here */
-    body {
-      font-family: Arial, sans-serif;
-    }
-
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    .button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin-top: 20px;
-      text-align: center;
-      background-color: #4CAF50;
-      color: #fff;
-      text-decoration: none;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .button:hover {
-      background-color: #45a049;
-    }
-  </style>
+  <title>Spotify Playlist Viewer</title>
 </head>
 <body>
-  <div class="container">
-    <h1>Welcome to My Website</h1>
-    <a href="/choose-playlist" class="button">Choose Playlist</a>
-  </div>
+  <h1>Spotify Playlist Viewer</h1>
+  <button onclick="authorizeSpotify()">Authorize</button>
+
+  <script>
+    // Global variables for Spotify API credentials
+    const clientId = '6ffed30ba9ac43d98ea19f4c52fc6f9b';
+    const redirectUri = 'https://echiu99.github.io/yeah/choose-playlist.html';
+    const scopes = 'playlist-read-private';
+
+    // Function to handle Spotify authorization
+    function authorizeSpotify() {
+      // Construct the authorization URL
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scopes)}`;
+
+      // Redirect the user to the Spotify authorization URL
+      window.location.href = authUrl;
+    }
+  </script>
 </body>
 </html>
