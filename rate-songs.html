@@ -87,25 +87,24 @@
                 nextButton.removeAttribute('disabled');
               });
             });
+           // Handle the next button click event
+           nextButton.addEventListener('click', () => {
+             // Perform the rating logic and move to the next song
+             // You can implement the tournament-style rating logic here
 
-            // Handle the next button click event
-            nextButton.addEventListener('click', () => {
-              // Perform the rating logic and move to the next song
-              // You can implement the tournament-style rating logic here
+             // Clear the song container and reset the selection
+             songContainer.innerHTML = '';
+             nextButton.disabled = true;
 
-              // Clear the song container and reset the selection
-              songContainer.innerHTML = '';
-              nextButton.disabled = true;
-
-              // Check if there are more songs to rate
-              if (/* Check if there are more songs */) {
-                // Fetch the next song and display it
-                // You can fetch the next song based on your rating logic and update the UI
-              } else {
-                // No more songs to rate, display the rating result or redirect to a new page
-                // You can display the final rating result or redirect the user to a new page
-              }
-            });
+             // Check if there are more songs to rate
+             if (remainingSongs.length > 0) {
+               // Fetch the next song and display it
+               // You can fetch the next song based on your rating logic and update the UI
+             } else {
+               // No more songs to rate, display the rating result or redirect to a new page
+               // You can display the final rating result or redirect the user to a new page
+             }
+           });
           } else {
             // If no songs found, display a message
             songContainer.innerHTML = 'No songs found.';
