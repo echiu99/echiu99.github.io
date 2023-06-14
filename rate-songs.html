@@ -51,60 +51,63 @@
   </div>
 
   <script>
-    // Fetch and display the songs from the selected playlist
-    window.onload = function() {
-      // Retrieve the selected playlist ID from local storage
-      const selectedPlaylistId = localStorage.getItem('selectedPlaylistId');
+      // Fetch and display songs from the selected playlist
+      window.onload = function() {
+        const accessToken = localStorage.getItem('spotifyAccessToken');
+        const selectedPlaylistId = localStorage.getItem('selectedPlaylistId');
 
-      if (selectedPlaylistId) {
-        // Fetch the songs from the selected playlist
+      if (accessToken && selectedPlaylistId) {
         fetch(`https://api.spotify.com/v1/playlists/${selectedPlaylistId}/tracks`, {
-          headers: {
-            'Authorization': 'Bearer ' + accessToken
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
+        headers: {
+         'Authorization': 'Bearer ' + accessToken
+       }
+     })
+     .then(response => response.json())
+     .then(data => {
           const songContainer = document.getElementById('song-container');
 
           if (data.items.length > 0) {
-            // Display each song as a selectable item
+            // Display each song as a rating item
             data.items.forEach(song => {
               const songItem = document.createElement('div');
               songItem.classList.add('song-item');
               songItem.innerHTML = `
-                <input type="radio" name="song" value="${song.track.id}" id="${song.track.id}">
-                <label for="${song.track.id}">${song.track.name}</label>
+                <h3>${song.track.name}</h3>
+                <p>Artist: ${song.track.artists[0].name}</p>
+                <p>Album: ${song.track.album.name}</p>
+                <p>Release Date: ${song.track.album.release_date}</p>
+                <p>Popularity: ${song.track.popularity}</p>
               `;
               songContainer.appendChild(songItem);
             });
 
-            // Enable the "Next" button once a song is selected
+            // Enable the "Next" button once a song is rated
             const nextButton = document.getElementById('next-button');
-            const songRadios = document.querySelectorAll('input[name="song"]');
-            songRadios.forEach(radio => {
-              radio.addEventListener('change', () => {
+            const songItems = document.querySelectorAll('.song-item');
+            songItems.forEach(item => {
+              item.addEventListener('click', () => {
                 nextButton.removeAttribute('disabled');
               });
             });
-           // Handle the next button click event
-           nextButton.addEventListener('click', () => {
-             // Perform the rating logic and move to the next song
-             // You can implement the tournament-style rating logic here
 
-             // Clear the song container and reset the selection
-             songContainer.innerHTML = '';
-             nextButton.disabled = true;
+            // Handle the next button click event
+            nextButton.addEventListener('click', () => {
+              // Perform the rating logic and move to the next song
+              // You can implement the tournament-style rating logic here
 
-             // Check if there are more songs to rate
-             if (remainingSongs.length > 0) {
-               // Fetch the next song and display it
-               // You can fetch the next song based on your rating logic and update the UI
-             } else {
-               // No more songs to rate, display the rating result or redirect to a new page
-               // You can display the final rating result or redirect the user to a new page
-             }
-           });
+              // Clear the song container and reset the selection
+              songContainer.innerHTML = '';
+              nextButton.disabled = true;
+
+              // Check if there are more songs to rate
+                if (remainingSongs.length > 0) {
+                  // Fetch the next song and display it
+                  // You can fetch the next song based on your rating logic and update the UI
+                } else {
+                  // No more songs to rate, display the rating result or redirect to a new page
+                  // You can display the final rating result or redirect the user to a new page
+                }
+              });
           } else {
             // If no songs found, display a message
             songContainer.innerHTML = 'No songs found.';
@@ -117,9 +120,9 @@
           songContainer.innerHTML = 'Error fetching songs. Please try again later.';
         });
       } else {
-        // No selected playlist ID found, handle the case when a playlist is not selected
-        console.log('No playlist selected.');
-        // You can redirect the user back to the "Choose Playlist" page or handle the situation accordingly
+        // Access token doesn't exist, handle the case when the user is not authorized
+        console.log('User not authorized.');
+        // You can redirect the user back to the authorization page if needed
       }
     };
   </script>
