@@ -47,7 +47,7 @@
   <div class="container">
     <h1>Choose a Playlist</h1>
     <div id="playlist-container"></div>
-    <a href="https://echiu99.github.io/yeah/rate-songs.html" class="button" id="select-button" disabled>Select Playlist</a>
+    <button class="button" id="select-button" disabled>Select Playlist</button>
   </div>
 
   <script>
@@ -92,6 +92,7 @@
             selectButton.addEventListener('click', () => {
               const selectedPlaylistId = document.querySelector('input[name="playlist"]:checked').value;
               localStorage.setItem('selectedPlaylistId', selectedPlaylistId);
+              window.location.href = 'https://echiu99.github.io/rate-songs.html';
             });
           } else {
             // If no playlists found, display a message
