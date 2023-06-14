@@ -64,21 +64,23 @@
      })
      .then(response => response.json())
      .then(data => {
-          const songContainer = document.getElementById('song-container');
+       const songContainer = document.getElementById('song-container');
+       songContainer.innerHTML = ''; // Clear the song container
 
-          if (data.items.length > 0) {
-            // Display each song as a rating item
-            data.items.forEach(song => {
-              const songItem = document.createElement('div');
-              songItem.classList.add('song-item');
-              songItem.innerHTML = `
-                <h3>${song.track.name}</h3>
-                <p>Artist: ${song.track.artists[0].name}</p>
-                <p>Album: ${song.track.album.name}</p>
-                <p>Release Date: ${song.track.album.release_date}</p>
-                <p>Popularity: ${song.track.popularity}</p>
-              `;
-              songContainer.appendChild(songItem);
+       if (data.items.length > 0) {
+         data.items.forEach((song, index) => {
+           const { name, artists } = song.track;
+           const artistNames = artists.map(artist => artist.name).join(', ');
+
+           const songItem = document.createElement('div');
+           songItem.classList.add('song-item');
+           songItem.innerHTML = `
+             <div class="song-details">
+               <h3>${name}</h3>
+               <p>${artistNames}</p>
+             </div>
+           `;
+           songContainer.appendChild(songItem);
             });
 
             // Enable the "Next" button once a song is rated
