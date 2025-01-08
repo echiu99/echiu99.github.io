@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rate Songs</title>
   <style>
-    /* Add your CSS styles here */
     body {
       font-family: "Times New Roman", Times, serif;
     }
@@ -42,6 +41,15 @@
     .button:hover {
       background-color: #45a049;
     }
+
+    .back-button {
+      background-color: #f44336;
+      margin-top: 10px;
+    }
+
+    .back-button:hover {
+      background-color: #e53935;
+    }
   </style>
 </head>
 <body>
@@ -49,6 +57,7 @@
     <h1>Tournament Rating</h1>
     <div id="song-container"></div>
     <button class="button" id="next-button" disabled>Next</button>
+    <button class="button back-button" onclick="goBack()">Back</button>
   </div>
 
   <script>
@@ -133,6 +142,7 @@
         <p>By ${winner.artist}</p>
       `;
     }
+
     // Go back to the Choose Playlist page
     function goBack() {
       // Optionally, you can clear the selected playlist ID
