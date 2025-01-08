@@ -133,6 +133,12 @@
         <p>By ${winner.artist}</p>
       `;
     }
+    // Go back to the Choose Playlist page
+    function goBack() {
+      // Optionally, you can clear the selected playlist ID
+      localStorage.removeItem('selectedPlaylistId');
+      window.location.href = 'choose-playlist.html';
+    }
   </script>
 </body>
 </html>
