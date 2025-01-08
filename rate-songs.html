@@ -22,6 +22,7 @@
 
     .song-item {
       margin-bottom: 10px;
+      text-align: center;
     }
 
     .button {
@@ -45,88 +46,93 @@
 </head>
 <body>
   <div class="container">
-    <h1>Rate Songs</h1>
+    <h1>Tournament Rating</h1>
     <div id="song-container"></div>
     <button class="button" id="next-button" disabled>Next</button>
   </div>
 
   <script>
-      // Fetch and display songs from the selected playlist
-      window.onload = function() {
-        const accessToken = localStorage.getItem('spotifyAccessToken');
-        const selectedPlaylistId = localStorage.getItem('selectedPlaylistId');
+    let allSongs = [];
+    let currentPair = [];
+    let winners = [];
+
+    window.onload = async function () {
+      const accessToken = localStorage.getItem('spotifyAccessToken');
+      const selectedPlaylistId = localStorage.getItem('selectedPlaylistId');
 
       if (accessToken && selectedPlaylistId) {
-        fetch(`https://api.spotify.com/v1/playlists/${selectedPlaylistId}/tracks`, {
-        headers: {
-         'Authorization': 'Bearer ' + accessToken
-       }
-     })
-     .then(response => response.json())
-     .then(data => {
-       const songContainer = document.getElementById('song-container');
-       songContainer.innerHTML = ''; // Clear the song container
+        try {
+          const response = await fetch(`https://api.spotify.com/v1/playlists/${selectedPlaylistId}/tracks`, {
+            headers: {
+              'Authorization': 'Bearer ' + accessToken
+            }
+          });
+          const data = await response.json();
 
-       if (data.items.length > 0) {
-         data.items.forEach((song, index) => {
-           const { name, artists } = song.track;
-           const artistNames = artists.map(artist => artist.name).join(', ');
+          // Extract relevant song data
+          allSongs = data.items.map(item => ({
+            name: item.track.name,
+            artist: item.track.artists.map(artist => artist.name).join(', '),
+            id: item.track.id,
+          }));
 
-           const songItem = document.createElement('div');
-           songItem.classList.add('song-item');
-           songItem.innerHTML = `
-             <div class="song-details">
-               <h3>${name}</h3>
-               <p>${artistNames}</p>
-             </div>
-           `;
-           songContainer.appendChild(songItem);
-            });
-
-            // Enable the "Next" button once a song is rated
-            const nextButton = document.getElementById('next-button');
-            const songItems = document.querySelectorAll('.song-item');
-            songItems.forEach(item => {
-              item.addEventListener('click', () => {
-                nextButton.removeAttribute('disabled');
-              });
-            });
-
-            // Handle the next button click event
-            nextButton.addEventListener('click', () => {
-              // Perform the rating logic and move to the next song
-              // You can implement the tournament-style rating logic here
-
-              // Clear the song container and reset the selection
-              songContainer.innerHTML = '';
-              nextButton.disabled = true;
-
-              // Check if there are more songs to rate
-                if (remainingSongs.length > 0) {
-                  // Fetch the next song and display it
-                  // You can fetch the next song based on your rating logic and update the UI
-                } else {
-                  // No more songs to rate, display the rating result or redirect to a new page
-                  // You can display the final rating result or redirect the user to a new page
-                }
-              });
-          } else {
-            // If no songs found, display a message
-            songContainer.innerHTML = 'No songs found.';
-          }
-        })
-        .catch(error => {
-          console.log('Error fetching songs:', error);
-          // Display an error message
-          const songContainer = document.getElementById('song-container');
-          songContainer.innerHTML = 'Error fetching songs. Please try again later.';
-        });
+          // Start the tournament
+          nextRound();
+        } catch (error) {
+          console.error('Error fetching songs:', error);
+          document.getElementById('song-container').innerText = 'Error fetching songs. Please try again later.';
+        }
       } else {
-        // Access token doesn't exist, handle the case when the user is not authorized
-        console.log('User not authorized.');
-        // You can redirect the user back to the authorization page if needed
+        console.log('User not authorized or playlist not selected.');
       }
     };
+
+    function nextRound() {
+      if (allSongs.length > 1) {
+        // Select two songs for the next matchup
+        currentPair = allSongs.splice(0, 2);
+
+        // Display the pair
+        const songContainer = document.getElementById('song-container');
+        songContainer.innerHTML = `
+          <div class="song-item">
+            <h3>${currentPair[0].name}</h3>
+            <p>${currentPair[0].artist}</p>
+            <button class="button" onclick="selectWinner(0)">Select</button>
+          </div>
+          <div class="song-item">
+            <h3>${currentPair[1].name}</h3>
+            <p>${currentPair[1].artist}</p>
+            <button class="button" onclick="selectWinner(1)">Select</button>
+          </div>
+        `;
+      } else if (allSongs.length === 1) {
+        // Add the last song to winners
+        winners.push(allSongs[0]);
+
+        // Display the final winner
+        displayWinner();
+      } else {
+        // Tournament complete
+        allSongs = winners;
+        winners = [];
+        nextRound();
+      }
+    }
+
+    function selectWinner(index) {
+      winners.push(currentPair[index]);
+      nextRound();
+    }
+
+    function displayWinner() {
+      const songContainer = document.getElementById('song-container');
+      const winner = winners[0];
+      songContainer.innerHTML = `
+        <h2>Winner: ${winner.name}</h2>
+        <p>By ${winner.artist}</p>
+      `;
+    }
   </script>
 </body>
 </html>
