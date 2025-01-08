@@ -171,12 +171,34 @@
     }
 
     function displayWinner() {
-      const songContainer = document.getElementById('song-container');
-      const winner = winners[0];
-      songContainer.innerHTML = `
-        <h2>Winner: ${winner.name}</h2>
-        <p>By ${winner.artist}</p>
-      `;
+	const songContainer = document.getElementById('song-container');
+
+	// Sort winners and all eliminated songs by their elimination order
+	const rankedSongs = [...winners, ...allSongs]; // Winners first, followed by eliminated songs
+
+	// Display the rankings
+	songContainer.innerHTML = `<h2>Final Rankings</h2>`;
+	rankedSongs.forEach((song, index) => {
+	songContainer.innerHTML += `
+		<p>${index + 1}. ${song.name} by ${song.artist}</p>
+		`;
+	});
+
+	// Optionally, add a button to restart the tournament
+	songContainer.innerHTML += `
+	<button class="button" onclick="restartTournament()">Restart Tournament</button>
+	`;
+    }
+
+    function restartTournament() {
+	// Reset the state
+	allSongs = [...winners, ...allSongs]; // Combine winners and eliminated songs
+	winners = [];
+	currentPair = [];
+	lastPair = [];
+
+  	// Restart the tournament
+  	nextRound();
     }
 
     // Go back to the Choose Playlist page
