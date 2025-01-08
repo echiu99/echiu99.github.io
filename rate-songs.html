@@ -94,6 +94,7 @@
             name: item.track.name,
             artist: item.track.artists.map(artist => artist.name).join(', '),
             id: item.track.id,
+	    votes: 0,
           }));
 
           // Start the tournament
@@ -147,6 +148,7 @@
     }
 
     function selectWinner(index) {
+      currentPair[index].votes++;
       winners.push(currentPair[index]);
       nextRound();
     }
@@ -173,32 +175,39 @@
     function displayWinner() {
 	const songContainer = document.getElementById('song-container');
 
-	// Sort winners and all eliminated songs by their elimination order
-	const rankedSongs = [...winners, ...allSongs]; // Winners first, followed by eliminated songs
+	// Merge winners and all remaining songs, avoiding duplicates
+	const allRankedSongs = [...new Set([...winners, ...allSongs])];
+	
+	// Sort songs by votes (descending) and then by name (alphabetically as a tiebreaker)
+	allRankedSongs.sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name));
 
 	// Display the rankings
 	songContainer.innerHTML = `<h2>Final Rankings</h2>`;
-	rankedSongs.forEach((song, index) => {
+	allRankedSongs.forEach((song, index) => {
 	songContainer.innerHTML += `
-		<p>${index + 1}. ${song.name} by ${song.artist}</p>
+		<p>${index + 1}. ${song.name} by ${song.artist} (Votes: ${song.votes})</p>
 		`;
 	});
 
-	// Optionally, add a button to restart the tournament
+	// Add a restart button
 	songContainer.innerHTML += `
-	<button class="button" onclick="restartTournament()">Restart Tournament</button>
-	`;
+		<button class="button" onclick="restartTournament()">Restart Tournament</button>
+		`;
     }
 
     function restartTournament() {
 	// Reset the state
 	allSongs = [...winners, ...allSongs]; // Combine winners and eliminated songs
+	allSongs = allSongs.map(song => ({ ...song, votes: 0 })); // Reset votes
 	winners = [];
 	currentPair = [];
 	lastPair = [];
+	
+	// Shuffle songs for a fresh start
+	allSongs.sort(() => Math.random() - 0.5);
 
-  	// Restart the tournament
-  	nextRound();
+	// Restart the tournament
+	nextRound();
     }
 
     // Go back to the Choose Playlist page
