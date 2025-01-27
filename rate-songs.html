@@ -43,30 +43,38 @@
     }
 
     .back-button {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #f44336;
-    padding: 10px 20px;
-    color: white;
-    text-decoration: none;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: auto;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #f44336;
+      padding: 10px 20px;
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: auto;
     }
 
     .back-button:hover {
       background-color: #e53935;
     }
+
+    .undo-button {
+      background-color: #f0ad4e;
+    }
+
+    .undo-button:hover {
+      background-color: #ec971f;
+    }
   </style>
 </head>
 <body>
-  <button class="button back-button" onclick="goBack()">Back</button>
+  <button class="back-button" onclick="goBack()">Back</button>
   <div class="container">
     <h1>Tournament Rating</h1>
     <div id="song-container"></div>
-    <button class="button" id="next-button" disabled>Next</button>
+    <button class="button next-button" id="next-button" disabled>Next</button>
     <button class="button undo-button" onclick="undoSelection()" disabled>Undo</button>
   </div>
 
@@ -74,7 +82,7 @@
     let allSongs = [];
     let currentPair = [];
     let winners = [];
-    let	lastPair = [];
+    let lastPair = [];
 
     window.onload = async function () {
       const accessToken = localStorage.getItem('spotifyAccessToken');
@@ -89,19 +97,29 @@
           });
           const data = await response.json();
 
+          if (data.items.length === 0) {
+            alert('This playlist is empty. Please select a different playlist.');
+            goBack();
+            return;
+          }
+
           // Extract relevant song data
           allSongs = data.items.map(item => ({
             name: item.track.name,
             artist: item.track.artists.map(artist => artist.name).join(', '),
             id: item.track.id,
-	    votes: 0,
+            votes: 0, // Initialize votes for each song
           }));
 
           // Start the tournament
           nextRound();
         } catch (error) {
           console.error('Error fetching songs:', error);
-          document.getElementById('song-container').innerText = 'Error fetching songs. Please try again later.';
+          const songContainer = document.getElementById('song-container');
+          songContainer.innerHTML = `
+            <p>Error fetching songs. Please check your connection or reauthorize the app.</p>
+            <button class="button" onclick="window.location.reload()">Retry</button>
+          `;
         }
       } else {
         console.log('User not authorized or playlist not selected.');
@@ -110,9 +128,9 @@
 
     function nextRound() {
       if (allSongs.length > 1) {
-	// Store the current pair as the last pair for undo
-	lastPair = [...currentPair];
-	
+        // Store the current pair as the last pair for undo
+        lastPair = [...currentPair];
+
         // Select two songs for the next matchup
         currentPair = allSongs.splice(0, 2);
 
@@ -130,9 +148,9 @@
             <button class="button" onclick="selectWinner(1)">Select</button>
           </div>
         `;
-	
-	// Enable the Undo button
-	document.querySelector('.undo-button').disabled = false;
+
+        // Enable the Undo button
+        document.querySelector('.undo-button').disabled = false;
       } else if (allSongs.length === 1) {
         // Add the last song to winners
         winners.push(allSongs[0]);
@@ -148,71 +166,65 @@
     }
 
     function selectWinner(index) {
-      currentPair[index].votes++;
-      winners.push(currentPair[index]);
-      nextRound();
+      currentPair[index].votes++; // Increment the vote count for the selected song
+      winners.push(currentPair[index]); // Add the winner to the winners array
+      nextRound(); // Move to the next round
     }
 
     function undoSelection() {
-	    if (lastPair.length > 0) {
-		// Restore the last pair to the front of the song list
-		allSongs.unshift(...lastPair);
+      if (lastPair.length > 0) {
+        // Restore the last pair to the front of the song list
+        allSongs.unshift(...lastPair);
 
-		// Remove the last winner from the history
-		winners.pop();
+        // Remove the last winner from the history
+        winners.pop();
 
-		// Clear the last pair
-		lastPair = [];
+        // Clear the last pair
+        lastPair = [];
 
-		//Re-run the current round
-		nextRound();
+        // Re-run the current round
+        nextRound();
 
-		// Disable the Undo button
-		document.querySelector('.undo-button').disabled = true;
-	    }
+        // Disable the Undo button
+        document.querySelector('.undo-button').disabled = true;
+      }
     }
 
     function displayWinner() {
-	const songContainer = document.getElementById('song-container');
+      const songContainer = document.getElementById('song-container');
 
-	// Merge winners and all remaining songs, avoiding duplicates
-	const allRankedSongs = [...new Set([...winners, ...allSongs])];
-	
-	// Sort songs by votes (descending) and then by name (alphabetically as a tiebreaker)
-	allRankedSongs.sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name));
+      // Merge winners and all remaining songs, avoiding duplicates
+      const allRankedSongs = Array.from(new Map([...winners, ...allSongs].map(song => [song.id, song])).values());
 
-	// Display the rankings
-	songContainer.innerHTML = `<h2>Final Rankings</h2>`;
-	allRankedSongs.forEach((song, index) => {
-	songContainer.innerHTML += `
-		<p>${index + 1}. ${song.name} by ${song.artist} (Votes: ${song.votes})</p>
-		`;
-	});
+      // Sort songs by votes (descending) and then by name (alphabetically as a tiebreaker)
+      allRankedSongs.sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name));
 
-	// Add a restart button
-	songContainer.innerHTML += `
-		<button class="button" onclick="restartTournament()">Restart Tournament</button>
-		`;
+      // Display the rankings
+      songContainer.innerHTML = `<h2>Final Rankings</h2>`;
+      allRankedSongs.forEach((song, index) => {
+        songContainer.innerHTML += `
+          <p>${index + 1}. ${song.name} by ${song.artist} (Votes: ${song.votes})</p>
+        `;
+      });
+
+      // Add a restart button
+      songContainer.innerHTML += `
+        <button class="button" onclick="restartTournament()">Restart Tournament</button>
+      `;
     }
 
     function restartTournament() {
-	// Reset the state
-	allSongs = [...winners, ...allSongs]; // Combine winners and eliminated songs
-	allSongs = allSongs.map(song => ({ ...song, votes: 0 })); // Reset votes
-	winners = [];
-	currentPair = [];
-	lastPair = [];
-	
-	// Shuffle songs for a fresh start
-	allSongs.sort(() => Math.random() - 0.5);
-
-	// Restart the tournament
-	nextRound();
+      // Combine winners and all songs, remove duplicates, and reset votes
+      allSongs = Array.from(new Map([...winners, ...allSongs].map(song => [song.id, { ...song, votes: 0 }])).values());
+      winners = [];
+      currentPair = [];
+      lastPair = [];
+      allSongs.sort(() => Math.random() - 0.5); // Shuffle
+      nextRound();
     }
 
-    // Go back to the Choose Playlist page
     function goBack() {
-      // Optionally, you can clear the selected playlist ID
+      // Optionally, clear the selected playlist ID
       localStorage.removeItem('selectedPlaylistId');
       window.location.href = 'choose-playlist.html';
     }
